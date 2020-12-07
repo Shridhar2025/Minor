@@ -1,0 +1,211 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+typedef struct
+{
+	float lat;
+	float lon;
+}coordinates;
+
+typedef struct
+{
+	char dla;
+	char dlo;
+}quadrant;
+
+static int depth;
+
+typedef struct node
+{
+	float v_lat;
+	float v_lon;
+	struct node *left, *right;
+}node;
+
+coordinates p[10];
+quadrant q[10];
+int n,M,N;
+
+void check_quadrant();
+void print_quadrant();
+void print_kdtree(node *);
+node *create(coordinates [],int,int);
+int give_mid(int);
+//int is_single(coordinates []);
+
+int main()
+{
+	int i=0;
+	printf("\n Enter the number of nodes: MAX=10");
+	scanf("%d",&n);
+	printf("\n Enter the %d values of Latitude and Longitudes of the registered cloud nodes",n);
+	for(i=0;i<n;i++)
+	{
+		scanf("%f%f",&p[i].lat,&p[i].lon);
+	}
+	printf("\n\nThe values you entered are:-");
+	for(i=0;i<10;i++)
+	{
+		printf("%f\n",p[i].lat);
+		printf("%f\n",p[i].lon);
+	}
+	check_quadrant();
+	print_quadrant();
+
+	node *root;
+	root = create(p,depth,n);
+	printf("\n\n The values in node of tree are: - \n");
+	print_kdtree(root);
+	return 0;
+}
+
+node * create(coordinates *p1, int d,int n1)
+{
+	int i=0,j=0,m=0,size1=0,size2=0;
+	float temp=0.0;
+	coordinates c1[10]={0.0};
+	coordinates c2[10]={0.0};
+	node *newnode;
+	newnode = (node *)malloc(sizeof(node));
+	if(n1==1)
+	{
+		newnode->v_lat = p1[0].lat;
+		newnode->v_lon = p1[0].lon;
+		newnode->left = newnode->right = NULL;
+		d = d+1;
+		return newnode;
+	}
+	else if(d%2==0)
+	{
+		for(i=0;i<n1;i++)	//sorting acc to X values
+	{
+		for(j=0;j<n1-i-1;j++)
+		{
+			if(p[j].lat>p[j+1].lat)
+			{
+				temp=p[j].lat;
+				p[j].lat=p[j+1].lat;
+				p[j+1].lat=temp;
+			}
+		}
+	}
+	m = give_mid(n1);
+	newnode->v_lat = p1[m-1].lat;
+	newnode->v_lon = p1[m-1].lon;
+	//splitting of set
+	
+	for(i=0;i<m-1;i++)
+	{
+		c1[i].lat = p1[i].lat;
+		c1[i].lon = p1[i].lon;
+		size1++;
+	}
+	for(i=m;i<n1;i++)
+	{
+		c2[i].lat = p1[i].lat;
+		c2[i].lon = p1[i].lon;
+		size2++;
+	}
+	}
+	else
+	{
+		for(i=0;i<n1;i++)	//sorting acc to Y values
+	{
+		for(j=0;j<n1-i-1;j++)
+		{
+			if(p1[j].lon>p1[j+1].lon)
+			{
+				temp=p1[j].lon;
+				p1[j].lon=p1[j+1].lon;
+				p1[j+1].lon=temp;
+			}
+		}
+	}
+	m = give_mid(n1);
+	newnode->v_lat = p1[m-1].lat;
+	newnode->v_lon = p1[m-1].lon;
+	//splitting of set
+	
+	for(i=0;i<m-1;i++)
+	{
+		c1[i].lat = p1[i].lat;
+		c1[i].lon = p1[i].lon;
+		size1++;
+	}
+	for(i=m;i<n1;i++)
+	{
+		c2[i].lat = p1[i].lat;
+		c2[i].lon = p1[i].lon;
+		size2++;
+	}
+	}
+	if(size1==0)
+	newnode->left = NULL;
+	else
+	newnode->left = create(c1,d+1,size1);
+	if(size2==0)
+	newnode->right = NULL;
+	else
+	newnode->right = create(c2,d+1,size2);
+	return newnode;
+}
+
+void print_kdtree(node *top)
+{
+	int i=0;
+	if(top!=NULL)
+	{
+		
+		//print_kdtree(top->left);
+		for(i=0;i<n;i++)
+		printf("(%f\t%f)\n",p[i].lat,p[i].lon);
+		//print_kdtree(top->right);
+	}
+}
+int give_mid(int x)
+{
+	int mid=0;
+	if(x%2==0)
+		mid = x/2;
+	else
+		mid = (x/2)+1;
+	return mid;
+}
+
+
+void check_quadrant()
+{
+	int i=0;
+	float la=0.0f,lo=0.0f;
+	char dirlat,dirlon;
+	for(i=0;i<10;i++)
+	{
+		dirlat = '\0';
+		dirlon = '\0';
+		la = p[i].lat;
+		lo = p[i].lon;
+		if(la>0.0)
+		dirlat = 'N';
+		else
+		dirlat = 'S';
+		if(lo>0.0)
+		dirlon = 'E';
+		else
+		dirlon = 'W';
+		q[i].dla = dirlat;
+		q[i].dlo = dirlon;
+		
+	}
+}
+
+void print_quadrant()
+{
+	int i=0;
+	printf("\n The Respective quadrants for all cloud nodes are: - \n");
+	for(i=0;i<10;i++)
+	{
+		printf("%c\t\t%c",q[i].dla,q[i].dlo);
+		printf("\n");
+	}
+}
