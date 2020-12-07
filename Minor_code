@@ -151,6 +151,15 @@ node * create(coordinates *p1, int d,int n1)
 	return newnode;
 }
 
+int give_mid(int x)
+{
+	int mid=0;
+	if(x%2==0)
+		mid = x/2;
+	else
+		mid = (x/2)+1;
+	return mid;
+}
 void print_kdtree(node *top)
 {
 	int i=0;
@@ -163,16 +172,6 @@ void print_kdtree(node *top)
 		//print_kdtree(top->right);
 	}
 }
-int give_mid(int x)
-{
-	int mid=0;
-	if(x%2==0)
-		mid = x/2;
-	else
-		mid = (x/2)+1;
-	return mid;
-}
-
 
 void check_quadrant()
 {
